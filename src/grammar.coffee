@@ -524,7 +524,10 @@ grammar =
 
     o 'Expression MATH     Expression',         -> new Op $2, $1, $3
     o 'Expression SHIFT    Expression',         -> new Op $2, $1, $3
-    o 'Expression COMPARE  Expression',         -> new Op $2, $1, $3
+    o 'Expression COMPARE  Expression',         -> 
+      indexLookup = new Index ["STRING"].concat($2.slice(1))
+      $1.properties.push indexLookup
+      new Call $1, $3
     o 'Expression LOGIC    Expression',         -> new Op $2, $1, $3
     o 'Expression RELATION Expression',         ->
       if $2.charAt(0) is '!'
