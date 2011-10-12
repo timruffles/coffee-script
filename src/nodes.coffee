@@ -1312,6 +1312,9 @@ exports.Op = class Op extends Base
   # [Python-style comparison chaining](http://docs.python.org/reference/expressions.html#notin)?
   isChainable: ->
     @operator in ['<', '>', '>=', '<=', '===', '!==']
+    
+  isComparison: ->
+    @operator in ['<', '>', '>=', '<=', '===', '!==', '<=>']
 
   invert: ->
     if @isChainable() and @first.isChainable()
@@ -1351,9 +1354,14 @@ exports.Op = class Op extends Base
     return @compileUnary     o if @isUnary()
     return @compileChain     o if isChain
     return @compileExistence o if @operator is '?'
-    code = @first.compile(o, LEVEL_OP) + ' ' + @operator + ' ' +
-           @second.compile(o, LEVEL_OP)
+    code = if @isComparison()
+       utility("comparison") + ".call(" + @first.compile(o, LEVEL_OP) + ", " +
+          @second.compile(o, LEVEL_OP) + ", '#{@operator}')"
+     else
+       @first.compile(o, LEVEL_OP) + ' ' + @operator + ' ' +
+             @second.compile(o, LEVEL_OP)
     if o.level <= LEVEL_OP then code else "(#{code})"
+    
 
   # Mimic Python's chained comparisons when multiple comparison operators are
   # used sequentially. For example:
@@ -1823,6 +1831,38 @@ UTILITIES =
   # Shortcuts to speed up the lookup time for native functions.
   hasProp: -> 'Object.prototype.hasOwnProperty'
   slice  : -> 'Array.prototype.slice'
+  
+  comparison: -> """
+    function(a,b,op) {
+      console.log("I LIVE");
+      if(!(typeof a["<=>"] === "function" && typeof b["<=>"] === "function")) {
+        var result;
+        switch(op) {
+          case "===":
+            result = a === b;
+          break;
+          case ">=":
+            result = a >= b;
+          break;
+          case "<=":
+            result = a <= b;
+          break;
+          case "!==":
+            result = a !== b;
+          break;
+          case ">":
+            result = a > b;
+          break;
+          case "<":
+            result = a < b;
+          break;
+        }
+        return result;
+      } else {
+        return a[op](b);
+      }
+    }
+  """
 
 # Levels indicate a node's position in the AST. Useful for knowing if
 # parens are necessary or superfluous.
