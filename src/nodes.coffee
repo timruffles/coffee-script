@@ -1355,7 +1355,7 @@ exports.Op = class Op extends Base
     return @compileChain     o if isChain
     return @compileExistence o if @operator is '?'
     code = if @isComparison()
-       utility("comparison") + ".call(" + @first.compile(o, LEVEL_OP) + ", " +
+       utility("comparison") + "(" + @first.compile(o, LEVEL_OP) + ", " +
           @second.compile(o, LEVEL_OP) + ", '#{@operator}')"
      else
        @first.compile(o, LEVEL_OP) + ' ' + @operator + ' ' +
@@ -1834,8 +1834,7 @@ UTILITIES =
   
   comparison: -> """
     function(a,b,op) {
-      console.log("I LIVE");
-      if(!(typeof a["<=>"] === "function" && typeof b["<=>"] === "function")) {
+      if(!typeof a[op] === "function") {
         var result;
         switch(op) {
           case "===":
