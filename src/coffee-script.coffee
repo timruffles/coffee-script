@@ -123,3 +123,4 @@ parser.lexer =
     ""
 
 parser.yy = require './nodes'
+parser.yy.comparison = exports.helpers.comparison

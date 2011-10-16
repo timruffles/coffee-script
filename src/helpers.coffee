@@ -51,6 +51,30 @@ exports.del = (obj, key) ->
   val =  obj[key]
   delete obj[key]
   val
+  
+exports.comparison = (a, b, op) ->
+    if a && b && a[op]
+      a[op] b
+    else
+      switch op
+        when "==="
+          a is b
+        when ">="
+          a >= b
+        when "<="
+          a <= b
+        when "!=="
+          a isnt b
+        when ">"
+          a > b
+        when "<"
+          a < b
+        when "<=>"
+          return 0 if a is b
+          (if a > b then 1 else -1)
+        else
+          throw "Unknown operator: " + op
+      
 
 # Gets the last item of an array(-like) object.
 exports.last = (array, back) -> array[array.length - (back or 0) - 1]

@@ -128,7 +128,7 @@ grammar =
     o 'REGEX',                                  -> new Literal $1
     o 'BOOL',                                   ->
       val = new Literal $1
-      val.isUndefined = yes if $1 is 'undefined'
+      val.isUndefined = yes if yy.comparison($1,'undefined','===')
       val
   ]
 
@@ -527,7 +527,7 @@ grammar =
     o 'Expression COMPARE  Expression',         -> new Op $2, $1, $3
     o 'Expression LOGIC    Expression',         -> new Op $2, $1, $3
     o 'Expression RELATION Expression',         ->
-      if $2.charAt(0) is '!'
+      if yy.comparison($2.charAt(0),'!','===')
         new Op($2.slice(1), $1, $3).invert()
       else
         new Op $2, $1, $3
