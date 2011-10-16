@@ -1834,29 +1834,26 @@ UTILITIES =
   
   comparison: -> """
     function(a,b,op) {
-      if(!typeof a[op] === "function") {
-        var result;
+      if(!a || !b || !a[op]) {
         switch(op) {
           case "===":
-            result = a === b;
-          break;
+            return a === b;
           case ">=":
-            result = a >= b;
-          break;
+            return a >= b;
           case "<=":
-            result = a <= b;
-          break;
+            return a <= b;
           case "!==":
-            result = a !== b;
-          break;
+            return a !== b;
           case ">":
-            result = a > b;
-          break;
+            return a > b;
           case "<":
-            result = a < b;
-          break;
+            return a < b;
+          case "<=>":
+            if(a === b) return 0;
+            return a > b ? 1 : -1;
+          default:
+            throw "Unknown operator: " + op;
         }
-        return result;
       } else {
         return a[op](b);
       }
